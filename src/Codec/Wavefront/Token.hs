@@ -11,11 +11,18 @@
 
 module Codec.Wavefront.Token where
 
+import Codec.Wavefront.Face
 import Codec.Wavefront.Float
+import Codec.Wavefront.Line
+import Codec.Wavefront.Location
 import Codec.Wavefront.Identifier
+import Codec.Wavefront.Normal
+import Codec.Wavefront.Point
+import Codec.Wavefront.TexCoord
 import Control.Applicative ( Alternative(..), empty )
 import Data.Attoparsec.Text as AP
-import Data.Text ( Text )
+import Data.Maybe ( catMaybes )
+import Data.Text ( Text, unpack )
 import qualified Data.Text as T ( empty )
 import Prelude hiding ( lines )
 
@@ -29,44 +36,42 @@ data Token
   | TknP [Point]
   | TknL [Line]
   | TknF [Face]
-  | TknG [Group]
-  | TknO Object
+  | TknG [Text]
+  | TknO Text 
     deriving (Eq,Show)
 
 type TokenStream = [Token]
 
 tokenize :: Text -> Either String TokenStream
-tokenize = analyseResult False . parse (many1 tokenizer <* endOfInput)
+tokenize = fmap cleanupTokens . analyseResult False . parse (many1 tokenizer)
   where
     tokenizer = foldl (<|>) empty
       [
-        fmap TknV location
-      , fmap TknVN normal
-      , fmap TknP points
-      , fmap TknL lines
-      , fmap TknF faces
-      , fmap TknG groups
-      , fmap TknO object
+        fmap (Just . TknV) location
+      , fmap (Just . TknVN) normal
+      , fmap (Just . TknVT) texCoord
+      , fmap (Just . TknP) points
+      , fmap (Just . TknL) lines
+      , fmap (Just . TknF) faces
+      , fmap (Just . TknG) groups
+      , fmap (Just . TknO) object
+      , Nothing <$ comment
       ]
 
-analyseResult :: Bool -> Result TokenStream -> Either String TokenStream
+analyseResult :: Bool -> Result [Maybe Token] -> Either String [Maybe Token]
 analyseResult partial r = case r of
   Done _ tkns -> Right tkns
-  Fail _ _ e -> Left e
+  Fail i _ e -> Left $ "`" ++ Prelude.take 10 (unpack i) ++ "` [...]: " ++ e
   Partial p -> if partial then Left "not completely tokenized" else analyseResult True (p T.empty)
+
+cleanupTokens :: [Maybe Token] -> TokenStream
+cleanupTokens = catMaybes
 
 ----------------------------------------------------------------------------------------------------
 -- Location ----------------------------------------------------------------------------------------
 
-data Location = Location
-  {-# UNPACK #-} !Float
-  {-# UNPACK #-} !Float
-  {-# UNPACK #-} !Float
-  {-# UNPACK #-} !Float
-    deriving (Eq,Show)
-
 location :: Parser Location
-location = char 'v' *> skipSpace *> parseXYZW <* eol
+location = skipSpace *> string "v " *> skipSpace *> parseXYZW <* eol
   where
     parseXYZW = do
       xyz <- float `sepBy1` skipSpace
@@ -78,14 +83,8 @@ location = char 'v' *> skipSpace *> parseXYZW <* eol
 ----------------------------------------------------------------------------------------------------
 -- Normal ------------------------------------------------------------------------------------------
 
-data Normal = Normal
-  {-# UNPACK #-} !Float
-  {-# UNPACK #-} !Float
-  {-# UNPACK #-} !Float
-    deriving (Eq,Show)
-
 normal :: Parser Normal
-normal = string "vn" *> skipSpace *> parseIJK <* eol
+normal = skipSpace *> string "vn " *> skipSpace *> parseIJK <* eol
   where
     parseIJK = do
       ijk <- float `sepBy1` skipSpace
@@ -96,14 +95,8 @@ normal = string "vn" *> skipSpace *> parseIJK <* eol
 ----------------------------------------------------------------------------------------------------
 -- Texture coordinates -----------------------------------------------------------------------------
 
-data TexCoord = TexCoord
-  {-# UNPACK #-} !Float
-  {-# UNPACK #-} !Float
-  {-# UNPACK #-} !Float
-    deriving (Eq,Show)
-
 texCoord :: Parser TexCoord
-texCoord = string "vt" *> skipSpace *> parseUVW <* eol
+texCoord = skipSpace *> string "vt " *> skipSpace *> parseUVW <* eol
   where
     parseUVW = do
       uvw <- float `sepBy1` skipSpace
@@ -115,19 +108,15 @@ texCoord = string "vt" *> skipSpace *> parseUVW <* eol
 ----------------------------------------------------------------------------------------------------
 -- Points ------------------------------------------------------------------------------------------
 
-data Point = Point {-# UNPACK #-} !Int deriving (Eq,Show)
-
 points :: Parser [Point]
-points = char 'p' *> skipSpace *> fmap Point decimal `sepBy1` skipSpace <* eol
+points = skipSpace *> string "p " *> skipSpace *> fmap Point decimal `sepBy1` skipSpace <* eol
 
 ----------------------------------------------------------------------------------------------------
 -- Lines -------------------------------------------------------------------------------------------
 
-data Line = Line {-# UNPACK #-} !(Int,Maybe Int) deriving (Eq,Show)
-
 -- TODO: ensure we have at least 2 pairs, otherwise it should fail
 lines :: Parser [Line]
-lines = char 'l' *> skipSpace *> fmap Line parseLinePair `sepBy1` skipSpace <* eol
+lines = skipSpace *> string "l " *> skipSpace *> fmap Line parseLinePair `sepBy1` skipSpace <* eol
   where
     parseLinePair = do
       v <- decimal
@@ -136,11 +125,9 @@ lines = char 'l' *> skipSpace *> fmap Line parseLinePair `sepBy1` skipSpace <* e
 ----------------------------------------------------------------------------------------------------
 -- Faces -------------------------------------------------------------------------------------------
 
-data Face = Face {-# UNPACK #-} !(Int,Maybe Int,Maybe Int) deriving (Eq,Show)
-
 -- TODO: ensure we have at least 3 triples, otherwise it should fail
 faces :: Parser [Face]
-faces = char 'f' *> skipSpace *> fmap Face parseFaceTriple `sepBy1` skipSpace <* eol
+faces = skipSpace *> string "f " *> skipSpace *> fmap Face parseFaceTriple `sepBy1` skipSpace <* eol
   where
     parseFaceTriple = do
       v <- decimal
@@ -155,18 +142,19 @@ faces = char 'f' *> skipSpace *> fmap Face parseFaceTriple `sepBy1` skipSpace <*
 ----------------------------------------------------------------------------------------------------
 -- Groups ------------------------------------------------------------------------------------------
 
-data Group = Group {-# UNPACK #-} !Text deriving (Eq,Show)
-
-groups :: Parser [Group]
-groups = char 'g' *> skipSpace *> fmap Group identifier `sepBy1` skipSpace <* eol
+groups :: Parser [Text]
+groups = skipSpace *> string "g " *> skipSpace *> identifier `sepBy1` skipSpace <* eol
 
 ----------------------------------------------------------------------------------------------------
 -- Objects -----------------------------------------------------------------------------------------
 
-data Object = Object {-# UNPACK #-} !Text deriving (Eq,Show)
+object :: Parser Text
+object = skipSpace *> string "o " *> skipSpace *> identifier <* eol
 
-object :: Parser Object
-object = char 'o' *> skipSpace *> fmap Object identifier <* eol
+----------------------------------------------------------------------------------------------------
+-- Comments ----------------------------------------------------------------------------------------
+comment :: Parser ()
+comment = skipSpace *> string "# " *> (() <$ manyTill anyChar eol)
 
 ----------------------------------------------------------------------------------------------------
 -- Special parsers ---------------------------------------------------------------------------------
@@ -180,4 +168,4 @@ slashThenElse thenP elseP = do
     _ -> elseP
 
 eol :: Parser ()
-eol = skipSpace *> (endOfLine <|> endOfInput)
+eol = skipMany (satisfy isHorizontalSpace) *> (endOfLine <|> endOfInput)
