@@ -15,16 +15,17 @@ import Codec.Wavefront.Face
 import Codec.Wavefront.Float
 import Codec.Wavefront.Line
 import Codec.Wavefront.Location
-import Codec.Wavefront.Identifier
 import Codec.Wavefront.Normal
 import Codec.Wavefront.Point
 import Codec.Wavefront.TexCoord
 import Control.Applicative ( Alternative(..), empty )
 import Data.Attoparsec.Text as AP
+import Data.Char ( isDigit, isLetter, isSpace )
 import Data.Maybe ( catMaybes )
 import Data.Text ( Text, unpack )
 import qualified Data.Text as T ( empty )
 import Prelude hiding ( lines )
+import System.FilePath ( isExtSeparator, isPathSeparator )
 
 ----------------------------------------------------------------------------------------------------
 -- Token -------------------------------------------------------------------------------------------
@@ -38,6 +39,8 @@ data Token
   | TknF [Face]
   | TknG [Text]
   | TknO Text 
+  | TknMtlLib [Text]
+  | TknUseMtl Text
     deriving (Eq,Show)
 
 type TokenStream = [Token]
@@ -45,7 +48,7 @@ type TokenStream = [Token]
 tokenize :: Text -> Either String TokenStream
 tokenize = fmap cleanupTokens . analyseResult False . parse (many1 tokenizer)
   where
-    tokenizer = foldl (<|>) empty
+    tokenizer = foldl1 (<|>)
       [
         fmap (Just . TknV) location
       , fmap (Just . TknVN) normal
@@ -55,6 +58,8 @@ tokenize = fmap cleanupTokens . analyseResult False . parse (many1 tokenizer)
       , fmap (Just . TknF) faces
       , fmap (Just . TknG) groups
       , fmap (Just . TknO) object
+      , fmap (Just . TknMtlLib) mtllib
+      , fmap (Just . TknUseMtl) usemtl
       , Nothing <$ comment
       ]
 
@@ -152,6 +157,18 @@ object :: Parser Text
 object = skipSpace *> string "o " *> skipSpace *> identifier <* eol
 
 ----------------------------------------------------------------------------------------------------
+-- Material libraries ------------------------------------------------------------------------------
+
+mtllib :: Parser [Text]
+mtllib = skipSpace *> string "mtllib " *> skipSpace *> path `sepBy1` skipSpace <* eol
+
+----------------------------------------------------------------------------------------------------
+-- Using materials ---------------------------------------------------------------------------------
+
+usemtl :: Parser Text
+usemtl = skipSpace *> string "usemtl " *> skipSpace *> path <* skipSpace <* eol
+
+----------------------------------------------------------------------------------------------------
 -- Comments ----------------------------------------------------------------------------------------
 comment :: Parser ()
 comment = skipSpace *> string "# " *> (() <$ manyTill anyChar eol)
@@ -169,3 +186,9 @@ slashThenElse thenP elseP = do
 
 eol :: Parser ()
 eol = skipMany (satisfy isHorizontalSpace) *> (endOfLine <|> endOfInput)
+
+identifier :: Parser Text
+identifier = takeWhile1 $ \c -> isDigit c || isLetter c
+
+path :: Parser Text
+path = takeWhile1 $ not . isSpace
