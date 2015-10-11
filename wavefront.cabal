@@ -1,5 +1,5 @@
 name:                wavefront
-version:             0.1
+version:             0.1.0.1
 synopsis:            Wavefront OBJ loader
 description:         A Wavefront OBJ loader. Currently supports polygonal information. More could
                      be added if needed (like curves and surface) if people contribute. Feel free
@@ -15,7 +15,7 @@ copyright:           Dimitri Sabadie
 category:            Codec
 build-type:          Simple
 extra-source-files:  CHANGELOG.md
-cabal-version:       >=1.10
+cabal-version:       >= 1.10
 
 source-repository head
   type:     git
@@ -24,7 +24,8 @@ source-repository head
 library
   ghc-options:         -W -Wall
 
-  exposed-modules:     Codec.Wavefront.Face
+  exposed-modules:     Codec.Wavefront
+                     , Codec.Wavefront.Face
                      , Codec.Wavefront.IO
                      , Codec.Wavefront.Line
                      , Codec.Wavefront.Location
