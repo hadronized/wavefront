@@ -77,7 +77,7 @@ emptyCtxt = Ctxt {
 
 -- |The lexer function, consuming tokens and yielding a 'Ctxt'.
 lexer :: TokenStream -> Ctxt
-lexer stream = execState (traverse_ consume stream) emptyObject
+lexer stream = execState (traverse_ consume stream) emptyCtxt
   where
     consume tk = case tk of
       TknV v -> do

@@ -160,13 +160,13 @@ object = skipSpace *> string "o " *> skipHSpace *> identifier <* eol
 -- Material libraries ------------------------------------------------------------------------------
 
 mtllib :: Parser [Text]
-mtllib = skipSpace *> string "mtllib " *> skipHSpace *> path `sepBy1` skipHSpace <* eol
+mtllib = skipSpace *> string "mtllib " *> skipHSpace *> name `sepBy1` skipHSpace <* eol
 
 ----------------------------------------------------------------------------------------------------
 -- Using materials ---------------------------------------------------------------------------------
 
 usemtl :: Parser Text
-usemtl = skipSpace *> string "usemtl " *> skipHSpace *> path <* skipHSpace <* eol
+usemtl = skipSpace *> string "usemtl " *> skipHSpace *> name <* skipHSpace <* eol
 
 ----------------------------------------------------------------------------------------------------
 -- Comments ----------------------------------------------------------------------------------------
@@ -184,14 +184,17 @@ slashThenElse thenP elseP = do
     Just '/' -> AP.take 1 *> thenP
     _ -> elseP
 
+-- End of line.
 eol :: Parser ()
 eol = skipMany (satisfy isHorizontalSpace) *> (endOfLine <|> endOfInput)
 
+-- Parse a digital and/or alpha identifier.
 identifier :: Parser Text
 identifier = takeWhile1 $ \c -> isDigit c || isLetter c
 
-path :: Parser Text
-path = takeWhile1 $ not . isSpace
+-- Parse a name (any character but space).
+name :: Parser Text
+name = takeWhile1 $ not . isSpace
 
 skipHSpace :: Parser ()
 skipHSpace = () <$ AP.takeWhile isHorizontalSpace
