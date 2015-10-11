@@ -76,10 +76,10 @@ cleanupTokens = catMaybes
 -- Location ----------------------------------------------------------------------------------------
 
 location :: Parser Location
-location = skipSpace *> string "v " *> skipSpace *> parseXYZW <* eol
+location = skipSpace *> string "v " *> skipHSpace *> parseXYZW <* eol
   where
     parseXYZW = do
-      xyz <- float `sepBy1` skipSpace
+      xyz <- float `sepBy1` skipHSpace
       case xyz of
         [x,y,z] -> pure (Location x y z 1)
         [x,y,z,w] -> pure (Location x y z w)
@@ -89,10 +89,10 @@ location = skipSpace *> string "v " *> skipSpace *> parseXYZW <* eol
 -- Normal ------------------------------------------------------------------------------------------
 
 normal :: Parser Normal
-normal = skipSpace *> string "vn " *> skipSpace *> parseIJK <* eol
+normal = skipSpace *> string "vn " *> skipHSpace *> parseIJK <* eol
   where
     parseIJK = do
-      ijk <- float `sepBy1` skipSpace
+      ijk <- float `sepBy1` skipHSpace
       case ijk of
         [i,j,k] -> pure (Normal i j k)
         _ -> fail "wrong number of i, j and k arguments for normal"
@@ -101,10 +101,10 @@ normal = skipSpace *> string "vn " *> skipSpace *> parseIJK <* eol
 -- Texture coordinates -----------------------------------------------------------------------------
 
 texCoord :: Parser TexCoord
-texCoord = skipSpace *> string "vt " *> skipSpace *> parseUVW <* eol
+texCoord = skipSpace *> string "vt " *> skipHSpace *> parseUVW <* eol
   where
     parseUVW = do
-      uvw <- float `sepBy1` skipSpace
+      uvw <- float `sepBy1` skipHSpace
       case uvw of
         [u,v] -> pure (TexCoord u v 0)
         [u,v,w] -> pure (TexCoord u v w)
@@ -114,14 +114,14 @@ texCoord = skipSpace *> string "vt " *> skipSpace *> parseUVW <* eol
 -- Points ------------------------------------------------------------------------------------------
 
 points :: Parser [Point]
-points = skipSpace *> string "p " *> skipSpace *> fmap Point decimal `sepBy1` skipSpace <* eol
+points = skipSpace *> string "p " *> skipHSpace *> fmap Point decimal `sepBy1` skipHSpace <* eol
 
 ----------------------------------------------------------------------------------------------------
 -- Lines -------------------------------------------------------------------------------------------
 
 -- TODO: ensure we have at least 2 pairs, otherwise it should fail
 lines :: Parser [Line]
-lines = skipSpace *> string "l " *> skipSpace *> fmap Line parseLinePair `sepBy1` skipSpace <* eol
+lines = skipSpace *> string "l " *> skipHSpace *> fmap Line parseLinePair `sepBy1` skipHSpace <* eol
   where
     parseLinePair = do
       v <- decimal
@@ -132,7 +132,7 @@ lines = skipSpace *> string "l " *> skipSpace *> fmap Line parseLinePair `sepBy1
 
 -- TODO: ensure we have at least 3 triples, otherwise it should fail
 faces :: Parser [Face]
-faces = skipSpace *> string "f " *> skipSpace *> fmap Face parseFaceTriple `sepBy1` skipSpace <* eol
+faces = skipSpace *> string "f " *> skipHSpace *> fmap Face parseFaceTriple `sepBy1` skipHSpace <* eol
   where
     parseFaceTriple = do
       v <- decimal
@@ -148,30 +148,30 @@ faces = skipSpace *> string "f " *> skipSpace *> fmap Face parseFaceTriple `sepB
 -- Groups ------------------------------------------------------------------------------------------
 
 groups :: Parser [Text]
-groups = skipSpace *> string "g " *> skipSpace *> identifier `sepBy1` skipSpace <* eol
+groups = skipSpace *> string "g " *> skipHSpace *> identifier `sepBy1` skipHSpace <* eol
 
 ----------------------------------------------------------------------------------------------------
 -- Objects -----------------------------------------------------------------------------------------
 
 object :: Parser Text
-object = skipSpace *> string "o " *> skipSpace *> identifier <* eol
+object = skipSpace *> string "o " *> skipHSpace *> identifier <* eol
 
 ----------------------------------------------------------------------------------------------------
 -- Material libraries ------------------------------------------------------------------------------
 
 mtllib :: Parser [Text]
-mtllib = skipSpace *> string "mtllib " *> skipSpace *> path `sepBy1` skipSpace <* eol
+mtllib = skipSpace *> string "mtllib " *> skipHSpace *> path `sepBy1` skipHSpace <* eol
 
 ----------------------------------------------------------------------------------------------------
 -- Using materials ---------------------------------------------------------------------------------
 
 usemtl :: Parser Text
-usemtl = skipSpace *> string "usemtl " *> skipSpace *> path <* skipSpace <* eol
+usemtl = skipSpace *> string "usemtl " *> skipHSpace *> path <* skipHSpace <* eol
 
 ----------------------------------------------------------------------------------------------------
 -- Comments ----------------------------------------------------------------------------------------
 comment :: Parser ()
-comment = skipSpace *> string "# " *> (() <$ manyTill anyChar eol)
+comment = skipSpace *> string "#" *> (() <$ manyTill anyChar eol)
 
 ----------------------------------------------------------------------------------------------------
 -- Special parsers ---------------------------------------------------------------------------------
@@ -192,3 +192,6 @@ identifier = takeWhile1 $ \c -> isDigit c || isLetter c
 
 path :: Parser Text
 path = takeWhile1 $ not . isSpace
+
+skipHSpace :: Parser ()
+skipHSpace = () <$ AP.takeWhile isHorizontalSpace
