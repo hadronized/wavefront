@@ -58,6 +58,8 @@ data Ctxt = Ctxt {
   , ctxtMtlLibs :: DList Text
   } deriving (Eq,Show)
 
+type WavefrontOBJ = Ctxt
+
 -- |The empty 'Ctxt'. Such a context exists at the beginning of the token stream and gets altered
 -- as we consume tokens.
 emptyCtxt :: Ctxt 
