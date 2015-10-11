@@ -7,25 +7,23 @@
 -- Stability   : experimental
 -- Portability : portable
 --
------------------------------------------------------------------------
+-----------------------------------------------------------------------------
 
 module Codec.Wavefront.Token where
 
 import Codec.Wavefront.Face
-import Codec.Wavefront.Float
 import Codec.Wavefront.Line
 import Codec.Wavefront.Location
 import Codec.Wavefront.Normal
 import Codec.Wavefront.Point
 import Codec.Wavefront.TexCoord
-import Control.Applicative ( Alternative(..), empty )
+import Control.Applicative ( Alternative(..) )
 import Data.Attoparsec.Text as AP
 import Data.Char ( isDigit, isLetter, isSpace )
 import Data.Maybe ( catMaybes )
 import Data.Text ( Text, unpack )
 import qualified Data.Text as T ( empty )
 import Prelude hiding ( lines )
-import System.FilePath ( isExtSeparator, isPathSeparator )
 
 ----------------------------------------------------------------------------------------------------
 -- Token -------------------------------------------------------------------------------------------
@@ -43,6 +41,7 @@ data Token
   | TknUseMtl Text
     deriving (Eq,Show)
 
+-- |A stream of 'Token'.
 type TokenStream = [Token]
 
 tokenize :: Text -> Either String TokenStream
@@ -198,3 +197,6 @@ name = takeWhile1 $ not . isSpace
 
 skipHSpace :: Parser ()
 skipHSpace = () <$ AP.takeWhile isHorizontalSpace
+
+float :: Parser Float
+float = fmap realToFrac double

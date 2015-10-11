@@ -7,9 +7,17 @@
 -- Stability   : experimental
 -- Portability : portable
 --
------------------------------------------------------------------------
+-----------------------------------------------------------------------------
 
-module Codec.Wavefront.Object where
+module Codec.Wavefront.Object (
+    -- * Context and elements
+    Ctxt(..)
+  , emptyCtxt
+  , Element(..)
+  , lexer
+    -- * Wavefront OBJ
+  , WavefrontOBJ
+  ) where
 
 import Codec.Wavefront.Face
 import Codec.Wavefront.Line
@@ -18,7 +26,7 @@ import Codec.Wavefront.Normal
 import Codec.Wavefront.Point
 import Codec.Wavefront.Token
 import Codec.Wavefront.TexCoord
-import Control.Monad.State ( MonadState, State, execState, gets, modify )
+import Control.Monad.State ( State, execState, gets, modify )
 import Data.DList ( DList, append, empty, fromList, snoc )
 import Data.Text ( Text )
 import Data.Foldable ( traverse_ )
@@ -58,6 +66,7 @@ data Ctxt = Ctxt {
   , ctxtMtlLibs :: DList Text
   } deriving (Eq,Show)
 
+-- |Wavefront OBJ type.
 type WavefrontOBJ = Ctxt
 
 -- |The empty 'Ctxt'. Such a context exists at the beginning of the token stream and gets altered
@@ -92,14 +101,14 @@ lexer stream = execState (traverse_ consume stream) emptyCtxt
         texCoords <- gets ctxtTexCoords
         modify $ \ctxt -> ctxt { ctxtTexCoords = texCoords `snoc` vt }
       TknP p -> do
-        (points,element) <- prepareElement ctxtPoints
-        modify $ \ctxt -> ctxt { ctxtPoints = points `append` fmap element (fromList p) }
+        (pts,element) <- prepareElement ctxtPoints
+        modify $ \ctxt -> ctxt { ctxtPoints = pts `append` fmap element (fromList p) }
       TknL l -> do
-        (lines,element) <- prepareElement ctxtLines
-        modify $ \ctxt -> ctxt { ctxtLines = lines `append` fmap element (fromList l) }
+        (lns,element) <- prepareElement ctxtLines
+        modify $ \ctxt -> ctxt { ctxtLines = lns `append` fmap element (fromList l) }
       TknF f -> do
-        (faces,element) <- prepareElement ctxtFaces
-        modify $ \ctxt -> ctxt { ctxtFaces = faces `append` fmap element (fromList f) }
+        (fcs,element) <- prepareElement ctxtFaces
+        modify $ \ctxt -> ctxt { ctxtFaces = fcs `append` fmap element (fromList f) }
       TknG g -> modify $ \ctxt -> ctxt { ctxtCurrentGroups = g }
       TknO o -> modify $ \ctxt -> ctxt { ctxtCurrentObject = Just o }
       TknMtlLib l -> do

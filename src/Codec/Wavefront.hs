@@ -7,13 +7,14 @@
 -- Stability   : experimental
 -- Portability : portable
 --
+-- Currently, you can parse a file and get a 'WavefrontOBJ' with the 'fromFile'
+-- function.
 -----------------------------------------------------------------------------
 
-module Codec.Wavefront.TexCoord where
+module Codec.Wavefront (
+    module Codec.Wavefront.Object
+  , module Codec.Wavefront.IO
+  ) where
 
-data TexCoord = TexCoord
-  {-# UNPACK #-} !Float
-  {-# UNPACK #-} !Float
-  {-# UNPACK #-} !Float
-    deriving (Eq,Show)
-
+import Codec.Wavefront.Object
+import Codec.Wavefront.IO
