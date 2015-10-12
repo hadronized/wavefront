@@ -19,7 +19,7 @@ import Codec.Wavefront.Point
 import Codec.Wavefront.TexCoord
 import Control.Applicative ( Alternative(..) )
 import Data.Attoparsec.Text as AP
-import Data.Char ( isDigit, isLetter, isSpace )
+import Data.Char ( isSpace )
 import Data.Maybe ( catMaybes )
 import Data.Text ( Text, unpack )
 import qualified Data.Text as T ( empty )
@@ -147,13 +147,13 @@ faces = skipSpace *> string "f " *> skipHSpace *> fmap Face parseFaceTriple `sep
 -- Groups ------------------------------------------------------------------------------------------
 
 groups :: Parser [Text]
-groups = skipSpace *> string "g " *> skipHSpace *> identifier `sepBy1` skipHSpace <* eol
+groups = skipSpace *> string "g " *> skipHSpace *> name `sepBy1` skipHSpace <* eol
 
 ----------------------------------------------------------------------------------------------------
 -- Objects -----------------------------------------------------------------------------------------
 
 object :: Parser Text
-object = skipSpace *> string "o " *> skipHSpace *> identifier <* eol
+object = skipSpace *> string "o " *> skipHSpace *> name <* eol
 
 ----------------------------------------------------------------------------------------------------
 -- Material libraries ------------------------------------------------------------------------------
@@ -186,10 +186,6 @@ slashThenElse thenP elseP = do
 -- End of line.
 eol :: Parser ()
 eol = skipMany (satisfy isHorizontalSpace) *> (endOfLine <|> endOfInput)
-
--- Parse a digital and/or alpha identifier.
-identifier :: Parser Text
-identifier = takeWhile1 $ \c -> isDigit c || isLetter c
 
 -- Parse a name (any character but space).
 name :: Parser Text
