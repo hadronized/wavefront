@@ -42,10 +42,8 @@ data Element a = Element {
 
 -- |The lexer context. The result of lexing a stream of tokens is this exact type.
 data Ctxt = Ctxt {
-    -- |Name of the object. 'Nothing' means that the object is not user-defined.
-    ctxtName :: Maybe Text
     -- |Locations.
-  , ctxtLocations :: DList Location
+    ctxtLocations :: DList Location
     -- |Texture coordinates.
   , ctxtTexCoords :: DList TexCoord
     -- |Normals.
@@ -73,8 +71,7 @@ type WavefrontOBJ = Ctxt
 -- as we consume tokens.
 emptyCtxt :: Ctxt 
 emptyCtxt = Ctxt {
-    ctxtName = Nothing
-  , ctxtLocations = empty
+    ctxtLocations = empty
   , ctxtTexCoords = empty
   , ctxtNormals = empty
   , ctxtPoints = empty

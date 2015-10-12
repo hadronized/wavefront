@@ -1,5 +1,5 @@
 name:                wavefront
-version:             0.1.0.2
+version:             0.2
 synopsis:            Wavefront OBJ loader
 description:         A Wavefront OBJ loader. Currently supports polygonal information. More could
                      be added if needed (like curves and surface) if people contribute. Feel free

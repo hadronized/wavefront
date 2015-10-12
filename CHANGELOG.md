@@ -1,3 +1,10 @@
+# 0.2
+
+#### Breaking changes
+
+- Removed `ctxtName`. It was an old function used to implement user-defined
+  objects, but since we have `Element`, we don’t those anymore.
+
 ### 0.1.0.2
 
 - Changed the loop of `tokenize` from `many1` to `untilEnd` (internal parser in Token.hs). That’s
