@@ -11,6 +11,13 @@
 
 module Codec.Wavefront.Location where
 
+-- |A location is a 4-floating vector. You can access to its components by pattern matching on them:
+--
+-- @
+--   let Location x y z w = Location 1 2 3 4
+-- @
+--
+-- That type is strict and unboxed.
 data Location = Location
   {-# UNPACK #-} !Float
   {-# UNPACK #-} !Float

@@ -32,7 +32,8 @@ import Data.Text ( Text )
 import Data.Foldable ( traverse_ )
 
 -- |An element holds a value along with the user-defined object’s name (if exists), the associated
--- groups and the used material.
+-- groups and the used material. Those values can be used to sort the data per object or per group
+-- and to lookup materials.
 data Element a = Element {
     elObject :: Maybe Text
   , elGroups :: [Text]

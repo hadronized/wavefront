@@ -1,5 +1,9 @@
 # 0.2
 
+#### Non-breaking changes
+
+- Added more verbose documentation everywhere.
+
 #### Breaking changes
 
 - Removed `ctxtName`. It was an old function used to implement user-defined
