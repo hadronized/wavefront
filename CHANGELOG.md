@@ -1,3 +1,10 @@
+### 0.1.0.2
+
+- Changed the loop of `tokenize` from `many1` to `untilEnd` (internal parser in Token.hs). That’s
+  due to the fact `many1` silently ignores failures while `untilEnd` does not.
+- Changed implementation of `tokenize` to use `choice`, which is implemented exactly as we had.
+- Removed `identifier` and use `name` instead to relax conditions on formatting names.
+
 ### 0.1.0.1
 
 - Added forgotten Codec.Wavefront.
