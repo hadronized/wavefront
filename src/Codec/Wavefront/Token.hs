@@ -45,9 +45,9 @@ data Token
 type TokenStream = [Token]
 
 tokenize :: Text -> Either String TokenStream
-tokenize = fmap cleanupTokens . analyseResult False . parse (many1 tokenizer)
+tokenize = fmap cleanupTokens . analyseResult False . parse (untilEnd tokenizer)
   where
-    tokenizer = foldl1 (<|>)
+    tokenizer = choice
       [
         fmap (Just . TknV) location
       , fmap (Just . TknVN) normal
@@ -196,3 +196,13 @@ skipHSpace = () <$ AP.takeWhile isHorizontalSpace
 
 float :: Parser Float
 float = fmap realToFrac double
+
+-- Loop a parser and collect its values until we hit the end of the stream. Fails on the first
+-- failure.
+untilEnd :: Parser a -> Parser [a]
+untilEnd p = go
+  where
+    go = do
+      a <- p
+      end <- atEnd
+      if end then pure [] else fmap (a:) go
