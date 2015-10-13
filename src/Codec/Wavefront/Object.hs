@@ -9,113 +9,47 @@
 --
 -----------------------------------------------------------------------------
 
-module Codec.Wavefront.Object (
-    -- * Context and elements
-    Ctxt(..)
-  , emptyCtxt
-  , Element(..)
-  , lexer
-    -- * Wavefront OBJ
-  , WavefrontOBJ
-  ) where
+module Codec.Wavefront.Object where
 
+import Codec.Wavefront.Element
 import Codec.Wavefront.Face
+import Codec.Wavefront.Lexer ( Ctxt(..) )
 import Codec.Wavefront.Line
 import Codec.Wavefront.Location
 import Codec.Wavefront.Normal
 import Codec.Wavefront.Point
-import Codec.Wavefront.Token
 import Codec.Wavefront.TexCoord
-import Control.Monad.State ( State, execState, gets, modify )
-import Data.DList ( DList, append, empty, fromList, snoc )
+import Data.DList ( DList, toList )
 import Data.Text ( Text )
-import Data.Foldable ( traverse_ )
+import Data.Vector ( Vector, fromList )
 
--- |An element holds a value along with the user-defined object’s name (if exists), the associated
--- groups and the used material. Those values can be used to sort the data per object or per group
--- and to lookup materials.
-data Element a = Element {
-    elObject :: Maybe Text
-  , elGroups :: [Text]
-  , elMtl    :: Maybe Text
-  , elValue  :: a
-  } deriving (Eq,Show)
-
--- |The lexer context. The result of lexing a stream of tokens is this exact type.
-data Ctxt = Ctxt {
+data WavefrontOBJ = WavefrontOBJ {
     -- |Locations.
-    ctxtLocations :: DList Location
+    objLocations :: Vector Location
     -- |Texture coordinates.
-  , ctxtTexCoords :: DList TexCoord
+  , objTexCoords :: Vector TexCoord
     -- |Normals.
-  , ctxtNormals :: DList Normal
+  , objNormals :: Vector Normal
     -- |Points.
-  , ctxtPoints :: DList (Element Point)
+  , objPoints :: Vector (Element Point)
     -- |Lines.
-  , ctxtLines :: DList (Element Line)
+  , objLines :: Vector (Element Line)
     -- |Faces.
-  , ctxtFaces :: DList (Element Face)
-    -- |Current object.
-  , ctxtCurrentObject :: Maybe Text
-    -- |Current groups.
-  , ctxtCurrentGroups :: [Text]
-    -- |Current material.
-  , ctxtCurrentMtl :: Maybe Text
+  , objFaces :: Vector (Element Face)
     -- |Material libraries.
-  , ctxtMtlLibs :: DList Text
+  , objMtlLibs :: Vector Text
   } deriving (Eq,Show)
 
--- |Wavefront OBJ type.
-type WavefrontOBJ = Ctxt
-
--- |The empty 'Ctxt'. Such a context exists at the beginning of the token stream and gets altered
--- as we consume tokens.
-emptyCtxt :: Ctxt 
-emptyCtxt = Ctxt {
-    ctxtLocations = empty
-  , ctxtTexCoords = empty
-  , ctxtNormals = empty
-  , ctxtPoints = empty
-  , ctxtLines = empty
-  , ctxtFaces = empty
-  , ctxtCurrentObject = Nothing
-  , ctxtCurrentGroups = ["default"]
-  , ctxtCurrentMtl = Nothing
-  , ctxtMtlLibs = empty
+ctxtToWavefrontOBJ :: Ctxt -> WavefrontOBJ
+ctxtToWavefrontOBJ ctxt = WavefrontOBJ {
+    objLocations = fromDList (ctxtLocations ctxt)
+  , objTexCoords = fromDList (ctxtTexCoords ctxt)
+  , objNormals = fromDList (ctxtNormals ctxt)
+  , objPoints = fromDList (ctxtPoints ctxt)
+  , objLines = fromDList (ctxtLines ctxt)
+  , objFaces = fromDList (ctxtFaces ctxt)
+  , objMtlLibs = fromDList (ctxtMtlLibs ctxt)
   }
 
--- |The lexer function, consuming tokens and yielding a 'Ctxt'.
-lexer :: TokenStream -> Ctxt
-lexer stream = execState (traverse_ consume stream) emptyCtxt
-  where
-    consume tk = case tk of
-      TknV v -> do
-        locations <- gets ctxtLocations
-        modify $ \ctxt -> ctxt { ctxtLocations = locations `snoc` v }
-      TknVN vn -> do
-        normals <- gets ctxtNormals
-        modify $ \ctxt -> ctxt { ctxtNormals = normals `snoc` vn }
-      TknVT vt -> do
-        texCoords <- gets ctxtTexCoords
-        modify $ \ctxt -> ctxt { ctxtTexCoords = texCoords `snoc` vt }
-      TknP p -> do
-        (pts,element) <- prepareElement ctxtPoints
-        modify $ \ctxt -> ctxt { ctxtPoints = pts `append` fmap element (fromList p) }
-      TknL l -> do
-        (lns,element) <- prepareElement ctxtLines
-        modify $ \ctxt -> ctxt { ctxtLines = lns `append` fmap element (fromList l) }
-      TknF f -> do
-        (fcs,element) <- prepareElement ctxtFaces
-        modify $ \ctxt -> ctxt { ctxtFaces = fcs `append` fmap element (fromList f) }
-      TknG g -> modify $ \ctxt -> ctxt { ctxtCurrentGroups = g }
-      TknO o -> modify $ \ctxt -> ctxt { ctxtCurrentObject = Just o }
-      TknMtlLib l -> do
-        libs <- gets ctxtMtlLibs
-        modify $ \ctxt -> ctxt { ctxtMtlLibs = libs `append` fromList l }
-      TknUseMtl mtl -> modify $ \ctxt -> ctxt { ctxtCurrentMtl = Just mtl }
-
--- Prepare to create a new 'Element' by retrieving its associated list.
-prepareElement :: (Ctxt -> DList (Element a)) -> State Ctxt (DList (Element a),a -> Element a)
-prepareElement field = do
-  (aList,obj,grp,mtl) <- gets $ (\ctxt -> (field ctxt,ctxtCurrentObject ctxt,ctxtCurrentGroups ctxt,ctxtCurrentMtl ctxt))
-  pure (aList,Element obj grp mtl)
+fromDList :: DList a -> Vector a
+fromDList = fromList . toList

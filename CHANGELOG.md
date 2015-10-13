@@ -1,3 +1,10 @@
+# 0.3
+
+#### Breaking changes
+
+- Changed the interface to manipulate `WavefrontOBJ`. It’s now a dedicated type with `Vector`
+  instead of `DList`, which is way better.
+
 # 0.2
 
 #### Non-breaking changes
