@@ -18,8 +18,8 @@ module Codec.Wavefront.Normal where
 -- @
 --
 -- That type is strict and unboxed.
-data Normal = Normal
-  {-# UNPACK #-} !Float
-  {-# UNPACK #-} !Float
-  {-# UNPACK #-} !Float
-    deriving (Eq,Show)
+data Normal = Normal {
+    norX :: {-# UNPACK #-} !Float
+  , norY :: {-# UNPACK #-} !Float
+  , norZ :: {-# UNPACK #-} !Float
+  } deriving (Eq,Show)

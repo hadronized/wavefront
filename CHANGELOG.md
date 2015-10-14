@@ -1,6 +1,8 @@
-### 0.3.0.1
+# 0.4
 
-- Changed internal structures of a few types.
+- Removed most modules from the exposed interface. Everything can be found in Codec.Wavefront.
+- Changed internal structures of a few types. The structure of those types shouldn’t be used in the
+  interface, so a few functions to access them was provided.
 
 # 0.3
 

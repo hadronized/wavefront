@@ -19,9 +19,9 @@ module Codec.Wavefront.TexCoord where
 -- @
 --
 -- That type is strcit and unboxed.
-data TexCoord = TexCoord
-  {-# UNPACK #-} !Float
-  {-# UNPACK #-} !Float
-  {-# UNPACK #-} !Float
-    deriving (Eq,Show)
+data TexCoord = TexCoord {
+    texcoordR :: {-# UNPACK #-} !Float
+  , texcoordS :: {-# UNPACK #-} !Float
+  , texcoordT :: {-# UNPACK #-} !Float
+  } deriving (Eq,Show)
 

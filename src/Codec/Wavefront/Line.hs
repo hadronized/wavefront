@@ -17,5 +17,8 @@ module Codec.Wavefront.Line where
 --
 -- Keep in mind that 'Line' doesn’t represent a polygonal line directly. It represents a line index,
 -- which is a pair. In theory, a polygonal line is 2 'Line's.
-data Line = Line {-# UNPACK #-} !Int !(Maybe Int) deriving (Eq,Show)
+data Line = Line {
+    lineLocIndex :: {-# UNPACK #-} !Int
+  , lineTexCoordIndex :: !(Maybe Int)
+  } deriving (Eq,Show)
 

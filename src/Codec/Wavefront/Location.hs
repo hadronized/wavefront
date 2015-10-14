@@ -18,9 +18,9 @@ module Codec.Wavefront.Location where
 -- @
 --
 -- That type is strict and unboxed.
-data Location = Location
-  {-# UNPACK #-} !Float
-  {-# UNPACK #-} !Float
-  {-# UNPACK #-} !Float
-  {-# UNPACK #-} !Float
-    deriving (Eq,Show)
+data Location = Location {
+    locX :: {-# UNPACK #-} !Float
+  , locY :: {-# UNPACK #-} !Float
+  , locZ :: {-# UNPACK #-} !Float
+  , locW :: {-# UNPACK #-} !Float
+  } deriving (Eq,Show)
