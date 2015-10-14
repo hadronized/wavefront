@@ -18,5 +18,5 @@ module Codec.Wavefront.Face where
 --
 -- Keep in mind that 'Face' doesn’t represent a polygonal face directly. It represents a face index,
 -- which is a triplet. In theory, a polygonal face is 3 'Face's.
-data Face = Face {-# UNPACK #-} !(Int,Maybe Int,Maybe Int) deriving (Eq,Show)
+data Face = Face {-# UNPACK #-} !Int !(Maybe Int) !(Maybe Int) deriving (Eq,Show)
 

@@ -120,7 +120,7 @@ points = skipSpace *> string "p " *> skipHSpace *> fmap Point decimal `sepBy1` s
 
 -- TODO: ensure we have at least 2 pairs, otherwise it should fail
 lines :: Parser [Line]
-lines = skipSpace *> string "l " *> skipHSpace *> fmap Line parseLinePair `sepBy1` skipHSpace <* eol
+lines = skipSpace *> string "l " *> skipHSpace *> fmap (\(i,k) -> Line i k) parseLinePair `sepBy1` skipHSpace <* eol
   where
     parseLinePair = do
       v <- decimal
@@ -131,7 +131,7 @@ lines = skipSpace *> string "l " *> skipHSpace *> fmap Line parseLinePair `sepBy
 
 -- TODO: ensure we have at least 3 triples, otherwise it should fail
 faces :: Parser [Face]
-faces = skipSpace *> string "f " *> skipHSpace *> fmap Face parseFaceTriple `sepBy1` skipHSpace <* eol
+faces = skipSpace *> string "f " *> skipHSpace *> fmap (\(i,k,j) -> Face i k j) parseFaceTriple `sepBy1` skipHSpace <* eol
   where
     parseFaceTriple = do
       v <- decimal

@@ -1,3 +1,7 @@
+### 0.3.0.1
+
+- Changed internal structures of a few types.
+
 # 0.3
 
 #### Breaking changes
