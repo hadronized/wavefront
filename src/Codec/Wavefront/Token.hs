@@ -205,4 +205,4 @@ untilEnd p = go
     go = do
       a <- p
       end <- atEnd
-      if end then pure [] else fmap (a:) go
+      if end then pure [a] else fmap (a:) go

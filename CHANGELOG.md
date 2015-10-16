@@ -1,3 +1,7 @@
+### 0.4.0.1
+
+- Fixed a bug in the implementation of `untilEnd`.
+
 # 0.4
 
 - Removed most modules from the exposed interface. Everything can be found in Codec.Wavefront.
