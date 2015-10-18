@@ -1,4 +1,4 @@
-### 0.4.0.1
+### 0.4.0.1
 
 - Fixed a bug in the implementation of `untilEnd`.
 
