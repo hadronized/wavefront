@@ -24,7 +24,7 @@
 #### Breaking changes
 
 - Removed `ctxtName`. It was an old function used to implement user-defined
-  objects, but since we have `Element`, we don’t those anymore.
+  objects, but since we have `Element`, we don’t need those anymore.
 
 ### 0.1.0.2
 
