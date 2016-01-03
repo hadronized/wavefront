@@ -1,3 +1,7 @@
+## 0.5.1
+
+- Exported all useful constructors and symbols.
+
 # 0.5
 
 #### Breaking changes

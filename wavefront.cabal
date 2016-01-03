@@ -1,5 +1,5 @@
 name:                wavefront
-version:             0.5
+version:             0.5.1
 synopsis:            Wavefront OBJ loader
 description:         A Wavefront OBJ loader. Currently supports polygonal information. More could
                      be added if needed (like curves and surface) if people contribute. Feel free
@@ -25,17 +25,17 @@ library
   ghc-options:         -W -Wall
 
   exposed-modules:     Codec.Wavefront
-                     , Codec.Wavefront.IO
-
-  other-modules:       Codec.Wavefront.Element
+                     , Codec.Wavefront.Element
                      , Codec.Wavefront.Face
-                     , Codec.Wavefront.Line
+                     , Codec.Wavefront.IO
                      , Codec.Wavefront.Location
+                     , Codec.Wavefront.Line
                      , Codec.Wavefront.Normal
                      , Codec.Wavefront.Object
                      , Codec.Wavefront.Point
                      , Codec.Wavefront.TexCoord
-                     , Codec.Wavefront.Token
+
+  other-modules:       Codec.Wavefront.Token
                      , Codec.Wavefront.Lexer
 
   default-extensions:  OverloadedStrings

@@ -121,14 +121,14 @@ points = skipSpace *> string "p " *> skipHSpace *> fmap Point decimal `sepBy1` s
 lines :: Parser [Line]
 lines = do
     skipSpace
-    string "l "
+    _ <- string "l "
     skipHSpace
     pointIndices <- parsePointIndices
-    points <- case pointIndices of
+    pts <- case pointIndices of
       _:_:_ -> pure $ zipWith Line pointIndices (tail pointIndices)
       _ -> fail "line doesn't have at least two points"
     eol
-    pure points
+    pure pts
   where
     parsePointIndices = fmap (\(i,j) -> LineIndex i j) parseLinePair `sepBy1` skipHSpace
     parseLinePair = do
@@ -140,7 +140,7 @@ lines = do
 face :: Parser Face
 face = do
     skipSpace
-    string "f "
+    _ <- string "f "
     skipHSpace
     faceIndices <- parseFaceIndices
     f <- case faceIndices of

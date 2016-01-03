@@ -13,39 +13,21 @@
 
 module Codec.Wavefront (
     -- * Vertex location
-    Location
-  , locX
-  , locY
-  , locZ
-  , locW
+    Location(..)
     -- * Vertex texture coordinates
-  , TexCoord
-  , texcoordR
-  , texcoordS
-  , texcoordT
+  , TexCoord(..)
     -- * Vertex normals
-  , Normal
-  , norX
-  , norY
-  , norZ
+  , Normal(..)
     -- * Points
-  , Point
-  , pointLocIndex
+  , Point(..)
     -- * Lines
-  , Line
-  , lineLocIndex
-  , lineTexCoordIndex
+  , Line(..)
+  , LineIndex(..)
     -- * Faces
-  , Face
-  , faceLocIndex
-  , faceTexCoordIndex
-  , faceNorIndex
+  , Face(..)
+  , FaceIndex(..)
     -- * Element
-  , Element
-  , elObject
-  , elGroups
-  , elMtl
-  , elValue
+  , Element(..)
     -- * Object
   , WavefrontOBJ(..)
     -- * Re-exports
