@@ -86,7 +86,7 @@ lexer stream = execState (traverse_ consume stream) emptyCtxt
         modify $ \ctxt -> ctxt { ctxtLines = lns `append` fmap element (fromList l) }
       TknF f -> do
         (fcs,element) <- prepareElement ctxtFaces
-        modify $ \ctxt -> ctxt { ctxtFaces = fcs `append` fmap element (fromList f) }
+        modify $ \ctxt -> ctxt { ctxtFaces = fcs `snoc` element f }
       TknG g -> modify $ \ctxt -> ctxt { ctxtCurrentGroups = g }
       TknO o -> modify $ \ctxt -> ctxt { ctxtCurrentObject = Just o }
       TknMtlLib l -> do

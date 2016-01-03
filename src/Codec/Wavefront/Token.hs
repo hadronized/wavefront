@@ -20,6 +20,7 @@ import Codec.Wavefront.TexCoord
 import Control.Applicative ( Alternative(..) )
 import Data.Attoparsec.Text as AP
 import Data.Char ( isSpace )
+import Data.List.NonEmpty ( NonEmpty(..) )
 import Data.Maybe ( catMaybes )
 import Data.Text ( Text, unpack )
 import qualified Data.Text as T ( empty )
@@ -34,9 +35,9 @@ data Token
   | TknVT TexCoord
   | TknP [Point]
   | TknL [Line]
-  | TknF [Face]
+  | TknF Face
   | TknG [Text]
-  | TknO Text 
+  | TknO Text
   | TknMtlLib [Text]
   | TknUseMtl Text
     deriving (Eq,Show)
@@ -54,7 +55,7 @@ tokenize = fmap cleanupTokens . analyseResult False . parse (untilEnd tokenizer)
       , fmap (Just . TknVT) texCoord
       , fmap (Just . TknP) points
       , fmap (Just . TknL) lines
-      , fmap (Just . TknF) faces
+      , fmap (Just . TknF) face
       , fmap (Just . TknG) groups
       , fmap (Just . TknO) object
       , fmap (Just . TknMtlLib) mtllib
@@ -117,22 +118,40 @@ points = skipSpace *> string "p " *> skipHSpace *> fmap Point decimal `sepBy1` s
 
 ----------------------------------------------------------------------------------------------------
 -- Lines -------------------------------------------------------------------------------------------
-
--- TODO: ensure we have at least 2 pairs, otherwise it should fail
 lines :: Parser [Line]
-lines = skipSpace *> string "l " *> skipHSpace *> fmap (\(i,k) -> Line i k) parseLinePair `sepBy1` skipHSpace <* eol
+lines = do
+    skipSpace
+    string "l "
+    skipHSpace
+    pointIndices <- parsePointIndices
+    points <- case pointIndices of
+      _:_:_ -> pure $ zipWith Line pointIndices (tail pointIndices)
+      _ -> fail "line doesn't have at least two points"
+    eol
+    pure points
   where
+    parsePointIndices = fmap (\(i,j) -> LineIndex i j) parseLinePair `sepBy1` skipHSpace
     parseLinePair = do
       v <- decimal
       slashThenElse (fmap (\vt -> (v, Just vt)) decimal) (pure (v,Nothing))
 
 ----------------------------------------------------------------------------------------------------
 -- Faces -------------------------------------------------------------------------------------------
-
--- TODO: ensure we have at least 3 triples, otherwise it should fail
-faces :: Parser [Face]
-faces = skipSpace *> string "f " *> skipHSpace *> fmap (\(i,k,j) -> Face i k j) parseFaceTriple `sepBy1` skipHSpace <* eol
+face :: Parser Face
+face = do
+    skipSpace
+    string "f "
+    skipHSpace
+    faceIndices <- parseFaceIndices
+    f <- case faceIndices of
+      [a,b,c] -> pure (Triangle a b c)
+      [a,b,c,d] -> pure (Quad a b c d)
+      _:_:_:_:_:_ -> pure (Polygon $ head faceIndices :| tail faceIndices)
+      _ -> fail "face doesn't have at least three points"
+    eol
+    pure f
   where
+    parseFaceIndices = fmap (\(i,k,j) -> FaceIndex i k j) parseFaceTriple `sepBy1` skipHSpace
     parseFaceTriple = do
       v <- decimal
       slashThenElse (parseVT v) (pure (v,Nothing,Nothing))

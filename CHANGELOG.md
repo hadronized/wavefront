@@ -1,3 +1,15 @@
+# 0.5
+
+#### Breaking changes
+
+- `objFaces` now contain structured faces of type `Face`. A `Face` can be:
+  * a `Triangle` ;
+  * a `Quad` ;
+  * an arbritrary `Polygon`.
+  Whatever the shape of the face, it holds several `FaceIndex` used to reference locations, normals
+  and texture coordinates.
+- Ditto for `objLines`.
+
 ### 0.4.0.1
 
 - Fixed a bug in the implementation of `untilEnd`.
