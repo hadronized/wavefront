@@ -1,3 +1,8 @@
+## 0.6
+
+- `Face` has just a single constructor now; pattern synonmys are available to pattern match against
+  `Triangle` and `Quad`.
+
 ## 0.5.1
 
 - Exported all useful constructors and symbols.

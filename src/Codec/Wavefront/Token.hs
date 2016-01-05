@@ -20,7 +20,6 @@ import Codec.Wavefront.TexCoord
 import Control.Applicative ( Alternative(..) )
 import Data.Attoparsec.Text as AP
 import Data.Char ( isSpace )
-import Data.List.NonEmpty ( NonEmpty(..) )
 import Data.Maybe ( catMaybes )
 import Data.Text ( Text, unpack )
 import qualified Data.Text as T ( empty )
@@ -144,9 +143,7 @@ face = do
     skipHSpace
     faceIndices <- parseFaceIndices
     f <- case faceIndices of
-      [a,b,c] -> pure (Triangle a b c)
-      [a,b,c,d] -> pure (Quad a b c d)
-      _:_:_:_:_:_ -> pure (Polygon $ head faceIndices :| tail faceIndices)
+      a:b:c:s -> pure (Face a b c s)
       _ -> fail "face doesn't have at least three points"
     eol
     pure f

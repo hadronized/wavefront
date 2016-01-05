@@ -1,3 +1,5 @@
+{-# LANGUAGE PatternSynonyms #-}
+
 -----------------------------------------------------------------------------
 -- |
 -- Copyright   : (C) 2015 Dimitri Sabadie
@@ -26,6 +28,8 @@ module Codec.Wavefront (
     -- * Faces
   , Face(..)
   , FaceIndex(..)
+  , pattern Triangle
+  , pattern Quad
     -- * Element
   , Element(..)
     -- * Object
