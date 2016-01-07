@@ -23,6 +23,7 @@ import Data.Char ( isSpace )
 import Data.Maybe ( catMaybes )
 import Data.Text ( Text, unpack )
 import qualified Data.Text as T ( empty )
+import Numeric.Natural ( Natural )
 import Prelude hiding ( lines )
 
 ----------------------------------------------------------------------------------------------------
@@ -39,6 +40,7 @@ data Token
   | TknO Text
   | TknMtlLib [Text]
   | TknUseMtl Text
+  | TknS Natural
     deriving (Eq,Show)
 
 -- |A stream of 'Token'.
@@ -59,6 +61,7 @@ tokenize = fmap cleanupTokens . analyseResult False . parse (untilEnd tokenizer)
       , fmap (Just . TknO) object
       , fmap (Just . TknMtlLib) mtllib
       , fmap (Just . TknUseMtl) usemtl
+      , fmap (Just . TknS) smoothingGroup
       , Nothing <$ comment
       ]
 
@@ -182,6 +185,13 @@ mtllib = skipSpace *> string "mtllib " *> skipHSpace *> name `sepBy1` skipHSpace
 
 usemtl :: Parser Text
 usemtl = skipSpace *> string "usemtl " *> skipHSpace *> name <* skipHSpace <* eol
+
+----------------------------------------------------------------------------------------------------
+-- Smoothing groups --------------------------------------------------------------------------------
+smoothingGroup :: Parser Natural
+smoothingGroup = skipSpace *> string "s " *> skipHSpace *> offOrIndex <* skipHSpace <* eol
+  where
+    offOrIndex = string "off" *> pure 0 <|> decimal
 
 ----------------------------------------------------------------------------------------------------
 -- Comments ----------------------------------------------------------------------------------------

@@ -23,6 +23,7 @@ import Data.DList ( DList, append, empty, fromList, snoc )
 import Data.Text ( Text )
 import Control.Monad.State ( State, execState, gets, modify )
 import Data.Foldable ( traverse_ )
+import Numeric.Natural ( Natural )
 
 -- |The lexer context. The result of lexing a stream of tokens is this exact type.
 data Ctxt = Ctxt {
@@ -46,6 +47,8 @@ data Ctxt = Ctxt {
   , ctxtCurrentMtl :: Maybe Text
     -- |Material libraries.
   , ctxtMtlLibs :: DList Text
+    -- |Current smoothing group.
+  , ctxtCurrentSmoothingGroup :: Natural
   } deriving (Eq,Show)
 
 -- |The empty 'Ctxt'. Such a context exists at the beginning of the token stream and gets altered
@@ -62,6 +65,7 @@ emptyCtxt = Ctxt {
   , ctxtCurrentGroups = ["default"]
   , ctxtCurrentMtl = Nothing
   , ctxtMtlLibs = empty
+  , ctxtCurrentSmoothingGroup = 0
   }
 
 -- |The lexer function, consuming tokens and yielding a 'Ctxt'.
@@ -93,9 +97,10 @@ lexer stream = execState (traverse_ consume stream) emptyCtxt
         libs <- gets ctxtMtlLibs
         modify $ \ctxt -> ctxt { ctxtMtlLibs = libs `append` fromList l }
       TknUseMtl mtl -> modify $ \ctxt -> ctxt { ctxtCurrentMtl = Just mtl }
+      TknS sg -> modify $ \ctxt -> ctxt { ctxtCurrentSmoothingGroup = sg }
 
 -- Prepare to create a new 'Element' by retrieving its associated list.
 prepareElement :: (Ctxt -> DList (Element a)) -> State Ctxt (DList (Element a),a -> Element a)
 prepareElement field = do
-  (aList,obj,grp,mtl) <- gets $ (\ctxt -> (field ctxt,ctxtCurrentObject ctxt,ctxtCurrentGroups ctxt,ctxtCurrentMtl ctxt))
-  pure (aList,Element obj grp mtl)
+  (aList,obj,grp,mtl,sg) <- gets $ (\ctxt -> (field ctxt,ctxtCurrentObject ctxt,ctxtCurrentGroups ctxt,ctxtCurrentMtl ctxt,ctxtCurrentSmoothingGroup ctxt))
+  pure (aList,Element obj grp mtl sg)
