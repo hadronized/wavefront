@@ -1,3 +1,7 @@
+## 0.7
+
+- Changed `Element` constructor by adding `elSmoothingGroup`.
+
 ## 0.6
 
 - `Face` has just a single constructor now; pattern synonmys are available to pattern match against

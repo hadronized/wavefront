@@ -15,13 +15,15 @@ module Codec.Wavefront.Element (
   ) where
 
 import Data.Text ( Text )
+import Numeric.Natural ( Natural )
 
--- |An element holds a value along with the user-defined object’s name (if exists), the associated
--- groups and the used material. Those values can be used to sort the data per object or per group
--- and to lookup materials.
+-- |An element holds a value along with the user-defined object’s name (if any), the associated
+-- groups, the used material and the smoothing group the element belongs to (if any). Those values
+-- can be used to sort the data per object or per group and to lookup materials.
 data Element a = Element {
     elObject :: Maybe Text
   , elGroups :: [Text]
-  , elMtl    :: Maybe Text
-  , elValue  :: a
+  , elMtl :: Maybe Text
+  , elSmoothingGroup :: Natural
+  , elValue :: a
   } deriving (Eq,Show)
