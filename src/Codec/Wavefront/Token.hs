@@ -21,7 +21,7 @@ import Control.Applicative ( Alternative(..) )
 import Data.Attoparsec.Text as AP
 import Data.Char ( isSpace )
 import Data.Maybe ( catMaybes )
-import Data.Text ( Text, unpack )
+import Data.Text ( Text, unpack, strip )
 import qualified Data.Text as T ( empty )
 import Numeric.Natural ( Natural )
 import Prelude hiding ( lines )
@@ -166,13 +166,13 @@ face = do
 -- Groups ------------------------------------------------------------------------------------------
 
 groups :: Parser [Text]
-groups = skipSpace *> string "g " *> skipHSpace *> name `sepBy1` skipHSpace <* eol
+groups = skipSpace *> string "g " *> skipHSpace *> name `sepBy` skipHSpace <* eol
 
 ----------------------------------------------------------------------------------------------------
 -- Objects -----------------------------------------------------------------------------------------
 
 object :: Parser Text
-object = skipSpace *> string "o " *> skipHSpace *> name <* eol
+object = skipSpace *> string "o " *> skipHSpace *> spacedName <* eol
 
 ----------------------------------------------------------------------------------------------------
 -- Material libraries ------------------------------------------------------------------------------
@@ -184,7 +184,7 @@ mtllib = skipSpace *> string "mtllib " *> skipHSpace *> name `sepBy1` skipHSpace
 -- Using materials ---------------------------------------------------------------------------------
 
 usemtl :: Parser Text
-usemtl = skipSpace *> string "usemtl " *> skipHSpace *> name <* skipHSpace <* eol
+usemtl = skipSpace *> string "usemtl " *> skipHSpace *> spacedName <* eol
 
 ----------------------------------------------------------------------------------------------------
 -- Smoothing groups --------------------------------------------------------------------------------
@@ -216,6 +216,9 @@ eol = skipMany (satisfy isHorizontalSpace) *> (endOfLine <|> endOfInput)
 -- Parse a name (any character but space).
 name :: Parser Text
 name = takeWhile1 $ not . isSpace
+
+spacedName :: Parser Text
+spacedName = strip <$> AP.takeWhile (flip notElem ("\n\r" :: String))
 
 skipHSpace :: Parser ()
 skipHSpace = () <$ AP.takeWhile isHorizontalSpace
