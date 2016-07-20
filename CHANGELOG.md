@@ -1,3 +1,7 @@
+#### 0.7.0.1
+
+- Added support for `dlist-0.8`.
+
 ## 0.7
 
 - Changed `Element` constructor by adding `elSmoothingGroup`.
