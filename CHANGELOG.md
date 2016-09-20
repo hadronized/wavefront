@@ -1,3 +1,7 @@
+#### 0.7.0.2
+
+- Added support for GHC 8.
+
 #### 0.7.0.1
 
 - Added support for `dlist-0.8`.
