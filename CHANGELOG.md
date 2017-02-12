@@ -1,5 +1,9 @@
 #### 0.7.0.2
 
+- Added support for `vector-0.12.0.0`.
+
+#### 0.7.0.2
+
 - Added support for GHC 8.
 
 #### 0.7.0.1
