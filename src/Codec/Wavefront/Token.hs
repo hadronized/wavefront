@@ -194,13 +194,6 @@ smoothingGroup = skipSpace *> string "s " *> skipHSpace *> offOrIndex <* skipHSp
     offOrIndex = string "off" *> pure 0 <|> decimal
 
 ----------------------------------------------------------------------------------------------------
--- Smoothing groups --------------------------------------------------------------------------------
-smoothingGroup :: Parser Natural
-smoothingGroup = skipSpace *> string "s " *> skipHSpace *> offOrIndex <* skipHSpace <* eol
-  where
-    offOrIndex = string "off" *> pure 0 <|> decimal
-
-----------------------------------------------------------------------------------------------------
 -- Comments ----------------------------------------------------------------------------------------
 comment :: Parser ()
 comment = skipSpace *> string "#" *> (() <$ manyTill anyChar eol)
