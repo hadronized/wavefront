@@ -1,3 +1,8 @@
+### 0.7.1
+
+- Allow missing group names.
+- Spaced object and material names are now supported.
+
 #### 0.7.0.2
 
 - Added support for `vector-0.12.0.0`.
