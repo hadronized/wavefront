@@ -40,7 +40,7 @@ library
 
   default-extensions:  OverloadedStrings
 
-  build-depends:       base         >= 4.8  && < 4.10
+  build-depends:       base         >= 4.8  && < 4.11
                      , attoparsec   >= 0.13 && < 0.14
                      , dlist        >= 0.7  && < 0.9
                      , filepath     >= 1.4  && < 1.5
