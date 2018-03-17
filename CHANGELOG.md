@@ -1,3 +1,7 @@
+#### 0.7.1.2
+
+- Added support for GHC.8.4.1.
+
 #### 0.7.1.1
 
 - Added support for GHC 8.2.1.

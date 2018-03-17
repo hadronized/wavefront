@@ -1,5 +1,5 @@
 name:                wavefront
-version:             0.7.1.1
+version:             0.7.1.2
 synopsis:            Wavefront OBJ loader
 description:         A Wavefront OBJ loader. Currently supports polygonal information. More could
                      be added if needed (like curves and surface) if people contribute. Feel free
@@ -40,7 +40,7 @@ library
 
   default-extensions:  OverloadedStrings
 
-  build-depends:       base         >= 4.8  && < 4.11
+  build-depends:       base         >= 4.8  && < 4.12
                      , attoparsec   >= 0.13 && < 0.14
                      , dlist        >= 0.7  && < 0.9
                      , filepath     >= 1.4  && < 1.5
