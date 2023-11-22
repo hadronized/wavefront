@@ -1,4 +1,4 @@
-#### 0.7.1.4
+#### 0.7.1.5
 
 - Relax many version bounds, in the context of GHC 9.4:
   - `base         >= 4.8  && < 4.18`
