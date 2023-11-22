@@ -1,3 +1,15 @@
+#### 0.7.1.4
+
+- Relax many version bounds, in the context of GHC 9.4:
+  - `base         >= 4.8  && < 4.18`
+  - `attoparsec   >= 0.13 && < 0.15`
+  - `dlist        >= 0.7  && < 1.1`
+  - `filepath     >= 1.4  && < 1.5`
+  - `mtl          >= 2.2  && < 2.4`
+  - `text         >= 1.2  && < 2.1`
+  - `transformers >= 0.4  && < 0.7`
+  - `vector       >= 0.11 && < 0.14`
+
 #### 0.7.1.3
 
   - Add support for GHC.8.6.1.
